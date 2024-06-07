@@ -25,6 +25,7 @@ jobs:
 
 
           echo '${{ toJson(secrets) }}'
+          echo ${{secrets.AWS_REGION}}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
