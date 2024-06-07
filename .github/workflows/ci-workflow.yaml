@@ -8,6 +8,8 @@ on:
 jobs:
   check-application:
     runs-on: ubuntu-latest
+    environment:
+      name: PROD
     strategy:
       matrix:
         version-go: ["1.15", "1.16"]
