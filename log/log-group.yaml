@@ -1,0 +1,9 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Log Stackkkk
+
+Resources:
+  LogGroupO2Auth:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: teste-1
+      RetentionInDays: 30
