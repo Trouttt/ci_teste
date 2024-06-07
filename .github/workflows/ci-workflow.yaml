@@ -1,5 +1,4 @@
 name: ci-workflow-teste
-
 on:
   pull_request:
     branchs:
@@ -27,14 +26,14 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets["AWS_ACCESS_KEY_ID_${{ env.DEPLOY_ENV }}"] }}
-          aws-secret-access-key: ${{ secrets["AWS_SECRET_ACCESS_KEY_${{ env.DEPLOY_ENV }}"] }}
-          aws-region: ${{ secrets["AWS_REGION_${{ env.DEPLOY_ENV }}"] }}
+          aws-access-key-id: ${{ secrets["AWS_ACCESS_KEY_ID_" + env.DEPLOY_ENV] }}
+          aws-secret-access-key: ${{ secrets["AWS_SECRET_ACCESS_KEY_" + env.DEPLOY_ENV] }}
+          aws-region: ${{ secrets["AWS_REGION_" + env.DEPLOY_ENV] }}
 
       - name: Checa se existe o bucket que irá alocar os itens
         id: stack_first_bucket_exists
         run: |
-          if aws cloudformation describe-stacks --stack-name ${{ env.BUCKET_SETUP_${{ env.DEPLOY_ENV }} }}; then
+          if aws cloudformation describe-stacks --stack-name ${{ secrets["BUCKET_SETUP_" + env.DEPLOY_ENV] }}; then
             echo "stack_first_bucket_exists=true" >> $GITHUB_ENV
           else
             echo "stack_first_bucket_exists=false" >> $GITHUB_ENV
@@ -45,16 +44,16 @@ jobs:
           if [ "${{ env.stack_first_bucket_exists }}" = "true" ]; then
             echo "Updating existing stack"
             aws cloudformation update-stack \
-              --stack-name ${{ env.BUCKET_SETUP_${{ env.DEPLOY_ENV }} }} \
+              --stack-name ${{ secrets["BUCKET_SETUP_" + env.DEPLOY_ENV] }} \
               --template-body file://setup/bucket-role.yaml \
-              --parameters ParameterKey=StageName, ParameterValue=${{env.DEPLOY_ENV}} \
+              --parameters ParameterKey=StageName, ParameterValue=${{ env.DEPLOY_ENV }} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
           else
             echo "Creating new stack"
             aws cloudformation create-stack \
-              --stack-name ${{ env.BUCKET_SETUP_${{ env.DEPLOY_ENV }} }} \
+              --stack-name ${{ secrets["BUCKET_SETUP_" + env.DEPLOY_ENV] }} \
               --template-body file://setup/bucket-role.yaml \
-              --parameters ParameterKey=StageName, ParameterValue=${{env.DEPLOY_ENV}} \
+              --parameters ParameterKey=StageName, ParameterValue=${{ env.DEPLOY_ENV }} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
           fi
 
@@ -65,12 +64,12 @@ jobs:
           fi
       - name: Faz o upload dos arquivos
         run: |
-          aws s3 cp ../../log/log-group.yaml s3://testebucketpipeline-${{env.DEPLOY_ENV}}/log/ --recursive
+          aws s3 cp ../../log/log-group.yaml s3://testebucketpipeline-${{ env.DEPLOY_ENV }}/log/ --recursive
 
       - name: Checa se existe a pilha do cloudformation
         id: stack_exists
         run: |
-          if aws cloudformation describe-stacks --stack-name teste-pilha-${{env.DEPLOY_ENV}}; then
+          if aws cloudformation describe-stacks --stack-name teste-pilha-${{ env.DEPLOY_ENV }}; then
             echo "stack_exists=true" >> $GITHUB_ENV
           else
             echo "stack_exists=false" >> $GITHUB_ENV
@@ -81,13 +80,13 @@ jobs:
           if [ "${{ env.stack_exists }}" = "true" ]; then
             echo "Updating existing stack"
             aws cloudformation update-stack \
-              --stack-name teste-pilha-${{env.DEPLOY_ENV}} \
+              --stack-name teste-pilha-${{ env.DEPLOY_ENV }} \
               --template-body file://template.yaml \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
           else
             echo "Creating new stack"
             aws cloudformation create-stack \
-              --stack-name teste-pilha-${{env.DEPLOY_ENV}} \
+              --stack-name teste-pilha-${{ env.DEPLOY_ENV }} \
               --template-body file://template.yaml \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
           fi
