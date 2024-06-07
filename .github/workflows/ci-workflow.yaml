@@ -24,7 +24,7 @@ jobs:
           elif [[ "$GITHUB_BASE_REF" == "staging" ]]; then
             echo "DEPLOY_ENV=STAGING" >> $GITHUB_ENV
           fi
-          echo "name: ${{ github.ref == 'refs/heads/master' && 'PROD' || 'STAGING' }}"
+          echo "name: ${{ github.ref == 'refs/heads/master' && 'PROD' || github.ref }}"
 
           echo '${{ toJson(secrets) }}'
           echo ${{secrets.AWS_REGION}}
