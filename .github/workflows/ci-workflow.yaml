@@ -23,7 +23,7 @@ jobs:
             echo "DEPLOY_ENV=STAGING" >> $GITHUB_ENV
           fi
           echo "DEPLOY_ENV=$DEPLOY_ENV"
-          echo github.ref
+          echo ${GITHUB_REF#refs/pull/*/merge}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
