@@ -5,4 +5,12 @@ Resources:
   LogsStackTeste:
   Type: AWS::CloudFormation::Stack
   Properties:
-    TemplateURL: "https://testebucketpipeline.s3.amazonaws.com/log/log-group.yaml"
+    TemplateURL:
+      Fn::Sub:
+        - "https://testebucketpipeline-${StageName}.s3.amazonaws.com/log/log-group.yaml"
+        - StageName: !Ref StageName
+
+Parameters:
+  StageName:
+    Type: String
+    Description: Nome do bucket
