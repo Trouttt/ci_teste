@@ -25,7 +25,7 @@ jobs:
             echo "DEPLOY_ENV=STAGING" >> $GITHUB_ENV
           fi
 
-          echo github.ref=github.ref
+          echo github.ref=$github.ref
 
           echo '${{ toJson(secrets) }}'
           echo ${{secrets.AWS_REGION}}
