@@ -4,6 +4,7 @@ Description: Teste
 Resources:
   TesteBucketPipelineBucket:
     Type: AWS::S3::Bucket
+    DependsOn: TesteBucketPipelinePolicy
     Properties:
       BucketName: testebucketpipeline-<AWS::AccountId>
 
