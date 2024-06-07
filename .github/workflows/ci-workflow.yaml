@@ -26,9 +26,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ format('AWS_ACCESS_KEY_ID_{0}', env.DEPLOY_ENV) }}
-          aws-secret-access-key: ${{ format('AWS_SECRET_ACCESS_KEY_{0}', env.DEPLOY_ENV) }}
-          aws-region: ${{ format('AWS_REGION_{0}', env.DEPLOY_ENV) }}
+    aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', env.DEPLOY_ENV)] }}
+    aws-secret-access-key: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', env.DEPLOY_ENV)] }}
+    aws-region: ${{ secrets[format('AWS_REGION_{0}', env.DEPLOY_ENV)] }}
 
       - name: Checa se existe o bucket que irá alocar os itens
         id: stack_first_bucket_exists
