@@ -6,7 +6,7 @@ Resources:
     Type: AWS::S3::Bucket
     DependsOn: TesteBucketPipelinePolicy
     Properties:
-      BucketName: testebucketpipeline-<AWS::AccountId>
+      BucketName: testebucketpipeline-${StageName}
 
   TesteBucketPipelinePolicy:
     Type: AWS::S3::BucketPolicy
