@@ -23,8 +23,9 @@ jobs:
 
       - name: Cria pasta 'log' caso ela não exista
         run: |
-          aws s3api head-object --bucket testebucketpipeline  --key log/ || aws s3api put-object --bucket testebucketpipeline  --key log/
-
+          if ! aws s3api list-objects-v2 --bucket your-bucket-name --prefix log/ | grep -q 'Contents'; then
+            aws s3api put-object --bucket your-bucket-name --key log/
+          fi
       - name: Faz o upload dos arquivos
         run: |
           aws s3 cp ../../log/log-group.yaml s3://testebucketpipeline/log/ --recursive
