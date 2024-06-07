@@ -9,7 +9,7 @@ jobs:
   check-application:
     runs-on: ubuntu-latest
     environment:
-      name: ${{ $GITHUB_BASE_REF == "master" && 'PROD' || 'STAGING'}}
+      name: PROD
     strategy:
       matrix:
         version-go: ["1.15", "1.16"]
@@ -25,6 +25,7 @@ jobs:
             echo "DEPLOY_ENV=STAGING" >> $GITHUB_ENV
           fi
 
+          echo github.ref=github.ref
 
           echo '${{ toJson(secrets) }}'
           echo ${{secrets.AWS_REGION}}
