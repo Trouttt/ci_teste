@@ -9,7 +9,7 @@ jobs:
   check-application:
     runs-on: ubuntu-latest
     environment:
-      name: PROD
+      name: ${{ github.event.pull_request.base.ref == "master" && 'PROD' || 'STAGING'}}
     strategy:
       matrix:
         version-go: ["1.15", "1.16"]
