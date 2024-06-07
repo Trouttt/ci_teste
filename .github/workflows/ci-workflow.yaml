@@ -9,7 +9,7 @@ jobs:
   check-application:
     runs-on: ubuntu-latest
     environment:
-      name: ${{"$GITHUB_BASE_REF" == "master" && 'PROD' || 'STAGING'}}
+      name: ${{ $GITHUB_BASE_REF == "master" && 'PROD' || 'STAGING'}}
     strategy:
       matrix:
         version-go: ["1.15", "1.16"]
