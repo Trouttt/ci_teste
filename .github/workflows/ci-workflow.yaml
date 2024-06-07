@@ -23,7 +23,7 @@ jobs:
             echo "DEPLOY_ENV=STAGING" >> $GITHUB_ENV
           fi
 
-          SECRETS=$(echo '${{ toJson(secrets) }}' | jq -r 'to_entries[] | select(.key | startswith("AWS_REGION_")) | .value')
+          SECRETS=$(echo '${{ toJson(secrets) }}' | jq -r 'to_entries[] | select(.key | startswith("AWS_REGION")) | .value')
           echo AWS_REGION: $SECRETS
 
       - name: Configure AWS credentials
