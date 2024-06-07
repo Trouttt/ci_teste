@@ -17,13 +17,11 @@ jobs:
 
       - name: Seta variável de ambiente
         run: |
-          if [[ "${GITHUB_REF##*/}" == "master" ]]; then
+          if [[ "$GITHUB_BASE_REF" == "master" ]]; then
             echo "DEPLOY_ENV=PROD" >> $GITHUB_ENV
-          elif [[ "${GITHUB_REF##*/}" == "staging" ]]; then
+          elif [[ "$GITHUB_BASE_REF" == "staging" ]]; then
             echo "DEPLOY_ENV=STAGING" >> $GITHUB_ENV
           fi
-          echo "DEPLOY_ENV=$DEPLOY_ENV"
-          echo "Merged branch name is $GITHUB_BASE_REF"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
