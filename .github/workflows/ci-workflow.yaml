@@ -20,6 +20,31 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+      #aws cloudformation update-stack --stack-name nerus-o2-staging --template-body file://template.yaml
+      - name: Checa se existe o bucket que irá alocar os itens
+        id: stack_first_bucket_exists
+        run: |
+          if aws cloudformation describe-stacks --stack-name ${{ env.BUCKET_SETUP }}; then
+            echo "stack_first_bucket_exists=true" >> $GITHUB_ENV
+          else
+            echo "stack_first_bucket_exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Roda o comando pra atualizar ou criar a pilha
+        run: |
+          if [ "${{ env.stack_first_bucket_exists }}" = "true" ]; then
+            echo "Updating existing stack"
+            aws cloudformation update-stack \
+              --stack-name ${{ env.BUCKET_SETUP }} \
+              --template-body file://setup/bucket-role.yaml \
+              --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+          else
+            echo "Creating new stack"
+            aws cloudformation create-stack \
+              --stack-name ${{ env.BUCKET_SETUP }} \
+              --template-body file://setup/bucket-role.yaml \
+              --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+          fi
 
       - name: Cria pasta 'log' caso ela não exista
         run: |
