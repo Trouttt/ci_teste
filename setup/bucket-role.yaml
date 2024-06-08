@@ -27,3 +27,8 @@ Resources:
             Action: "s3:PutObject"
             Resource: !Sub "arn:aws:s3:::${TesteBucketPipelineBucket}/*"
             Condition: {}
+
+Parameters:
+  StageName:
+    Type: String
+    Description: Nome do bucket
