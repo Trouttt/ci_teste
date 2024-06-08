@@ -50,7 +50,7 @@ jobs:
             echo "stack_first_bucket_exists=false" >> $GITHUB_ENV
           fi
 
-      - name: Roda o comando pra atualizar ou criar a pilha
+      - name: Roda o comando pra atualizar ou criar a pilha do setup
         run: |
           if [ "${{ env.stack_first_bucket_exists }}" = "true" ]; then
             echo "Updating existing stack"
@@ -87,7 +87,7 @@ jobs:
             echo "stack_exists=false" >> $GITHUB_ENV
           fi
 
-      - name: Roda o comando pra atualizar ou criar a pilha
+      - name: Roda o comando pra atualizar ou criar a pilha dos serviços
         run: |
           if [ "${{ env.stack_exists }}" = "true" ]; then
             echo "Updating existing stack"
