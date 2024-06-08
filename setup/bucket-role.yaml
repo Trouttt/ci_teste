@@ -5,7 +5,7 @@ Resources:
   TesteBucketPipelineBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: testebucketpipeline-${StageName}
+      BucketName: !Sub "testebucketpipeline-${StageName}"
 
   TesteBucketPipelinePolicy:
     Type: AWS::S3::BucketPolicy
