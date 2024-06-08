@@ -41,7 +41,7 @@ jobs:
           #aws sts get-caller-identity
           #echo aws sts get-caller-identity
 
-      - name: Checa se existe o bucket que irá alocar os itens
+      - name: Checa se existe o bucket que irá alocar os itenss
         id: stack_first_bucket_exists
         run: |
           if aws cloudformation describe-stacks --stack-name ${{ format('BUCKET_SETUP_{0}', env.DEPLOY_ENV) }}; then
