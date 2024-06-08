@@ -5,6 +5,10 @@ on:
       - master
       - staging
 
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read
+
 jobs:
   check-application:
     runs-on: ubuntu-latest
