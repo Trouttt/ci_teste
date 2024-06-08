@@ -56,7 +56,6 @@ jobs:
               echo "Stack is in ROLLBACK_COMPLETE state. Deleting stack..."
               aws cloudformation delete-stack --stack-name $STACK_NAME
               echo "Stack deletion initiated."
-              sleep 5
             else
               echo "Stack is not in ROLLBACK_COMPLETE state. Current state: $STACK_STATUS"
             fi
