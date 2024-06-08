@@ -41,6 +41,23 @@ jobs:
           #aws sts get-caller-identity
           #echo aws sts get-caller-identity
 
+      - name: Deleta pilha se ela está em rollback-complete
+        run: |
+          # Nome da stack, você pode substituir pelo nome da sua stack ou passar como argumento
+          STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+
+          # Obtém o estado da stack
+          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
+
+          # Verifica se o estado da stack é 'ROLLBACK_COMPLETE'
+          if [ "$STACK_STATUS" == "ROLLBACK_COMPLETE" ]; then
+            echo "Stack is in ROLLBACK_COMPLETE state. Deleting stack..."
+            aws cloudformation delete-stack --stack-name $STACK_NAME
+            echo "Stack deletion initiated."
+          else
+            echo "Stack is not in ROLLBACK_COMPLETE state. Current state: $STACK_STATUS"
+          fi
+
       - name: Checa se existe o bucket que irá alocar os itenss
         id: stack_first_bucket_exists
         run: |
