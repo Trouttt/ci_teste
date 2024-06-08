@@ -46,8 +46,10 @@ jobs:
           # Nome da stack, você pode substituir pelo nome da sua stack ou passar como argumento
           STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
 
+          echo 'Estou aqui'
           if aws cloudformation describe-stacks --stack-name $STACK_NAME; then
             
+            echo 'Passei dali'
             # Obtém o estado da stack
             STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
 
