@@ -104,8 +104,6 @@ jobs:
 
       - name: Roda o comando pra atualizar ou criar a pilha do setup
         run: |
-
-
           if aws cloudformation describe-stacks --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
             STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
             STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
@@ -125,6 +123,7 @@ jobs:
             wait_for_stack_deletion
           else
             echo "Pilha existe"
+            echo "stack_first_bucket_exists=true" >> $GITHUB_ENV
           fi
 
 
