@@ -42,6 +42,10 @@ jobs:
 
       - name: Checa se existe o bucket que irá alocar os itens
         id: stack_first_bucket_exists
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           if aws cloudformation describe-stacks --stack-name ${{ format('BUCKET_SETUP_{0}', env.DEPLOY_ENV) }}; then
             echo "stack_first_bucket_exists=true" >> $GITHUB_ENV
@@ -50,6 +54,10 @@ jobs:
           fi
 
       - name: Roda o comando pra atualizar ou criar a pilha
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           if [ "${{ env.stack_first_bucket_exists }}" = "true" ]; then
             echo "Updating existing stack"
@@ -68,16 +76,29 @@ jobs:
           fi
 
       - name: Cria pasta 'log' caso ela não exista
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           if ! aws s3api list-objects-v2 --bucket your-bucket-name --prefix log/ | grep -q 'Contents'; then
             aws s3api put-object --bucket your-bucket-name --key log/
           fi
+
       - name: Faz o upload dos arquivos
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           aws s3 cp ../../log/log-group.yaml s3://testebucketpipeline-${{ env.DEPLOY_ENV }}/log/ --recursive
 
       - name: Checa se existe a pilha do cloudformation
         id: stack_exists
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           if aws cloudformation describe-stacks --stack-name teste-pilha-${{ env.DEPLOY_ENV }}; then
             echo "stack_exists=true" >> $GITHUB_ENV
@@ -86,6 +107,10 @@ jobs:
           fi
 
       - name: Roda o comando pra atualizar ou criar a pilha
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           if [ "${{ env.stack_exists }}" = "true" ]; then
             echo "Updating existing stack"
