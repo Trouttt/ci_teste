@@ -62,19 +62,26 @@ jobs:
 
             get_stack_status() {
               aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text
+
             }
 
             # Aguarda até que a stack saia do estado DELETE_IN_PROGRESS
             wait_for_stack_deletion() {
-              while true; do
-                STACK_STATUS=$(get_stack_status)
-                if [ "$STACK_STATUS" == "DELETE_IN_PROGRESS" ]; then
-                  echo "Stack is in DELETE_IN_PROGRESS state. Waiting..."
-                  sleep 30  # Aguarda 20 segundos antes de verificar novamente
-                else
-                  break
-                fi
-              done
+              if aws cloudformation describe-stacks --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
+
+                while true; do
+                  
+                  STACK_STATUS=$(get_stack_status)
+                  if [ "$STACK_STATUS" == "DELETE_IN_PROGRESS" ]; then
+                    echo "Stack is in DELETE_IN_PROGRESS state. Waiting..."
+                    sleep 30  # Aguarda 20 segundos antes de verificar novamente
+                  else
+                    break
+                  fi
+                done
+              else
+                echo "A pilha: $STACK_NAME não existe"
+              fi
             }
 
             # Verifica se a stack está em DELETE_IN_PROGRESS e aguarda até que ela seja deletada
