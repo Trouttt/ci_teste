@@ -54,9 +54,34 @@ jobs:
             echo "Stack is in ROLLBACK_COMPLETE state. Deleting stack..."
             aws cloudformation delete-stack --stack-name $STACK_NAME
             echo "Stack deletion initiated."
+            sleep 5
           else
             echo "Stack is not in ROLLBACK_COMPLETE state. Current state: $STACK_STATUS"
           fi
+
+      - name: Verifica se a pilha está de fato deletada
+        run: |
+          LOWER_DEPLOY_ENV=$(echo "${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]')
+
+          get_stack_status() {
+            aws cloudformation describe-stacks --stack-name "bucket-setup-${LOWER_DEPLOY_ENV}" --query 'Stacks[0].StackStatus' --output text
+          }
+
+          # Aguarda até que a stack saia do estado DELETE_IN_PROGRESS
+          wait_for_stack_deletion() {
+            while true; do
+              STACK_STATUS=$(get_stack_status)
+              if [ "$STACK_STATUS" == "DELETE_IN_PROGRESS" ]; then
+                echo "Stack is in DELETE_IN_PROGRESS state. Waiting..."
+                sleep 30  # Aguarda 20 segundos antes de verificar novamente
+              else
+                break
+              fi
+            done
+          }
+
+          # Verifica se a stack está em DELETE_IN_PROGRESS e aguarda até que ela seja deletada
+          wait_for_stack_deletion
 
       - name: Checa se existe o bucket que irá alocar os itenss
         id: stack_first_bucket_exists
