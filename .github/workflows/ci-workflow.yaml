@@ -57,14 +57,14 @@ jobs:
             aws cloudformation update-stack \
               --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') \
               --template-body file://setup/bucket-role.yaml \
-              --parameters ParameterKey=StageName, ParameterValue=${{ env.DEPLOY_ENV }} \
+              --parameters ParameterKey=StageName,ParameterValue=${{ env.DEPLOY_ENV }} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
           else
             echo "Creating new stack"
             aws cloudformation create-stack \
               --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') \
               --template-body file://setup/bucket-role.yaml \
-              --parameters ParameterKey=StageName, ParameterValue=${{ env.DEPLOY_ENV }} \
+              --parameters ParameterKey=StageName,ParameterValue=${{ env.DEPLOY_ENV }} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
           fi
 
