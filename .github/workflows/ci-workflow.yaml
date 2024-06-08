@@ -44,7 +44,7 @@ jobs:
       - name: Checa se existe o bucket que irá alocar os itenss
         id: stack_first_bucket_exists
         run: |
-          if aws cloudformation describe-stacks --stack-name ${{ format('BUCKET_SETUP_{0}', env.DEPLOY_ENV) }}; then
+          if aws cloudformation describe-stacks --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]'); then
             echo "stack_first_bucket_exists=true" >> $GITHUB_ENV
           else
             echo "stack_first_bucket_exists=false" >> $GITHUB_ENV
@@ -55,14 +55,14 @@ jobs:
           if [ "${{ env.stack_first_bucket_exists }}" = "true" ]; then
             echo "Updating existing stack"
             aws cloudformation update-stack \
-              --stack-name ${{ format('BUCKET_SETUP_{0}', env.DEPLOY_ENV) }} \
+              --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') \
               --template-body file://setup/bucket-role.yaml \
               --parameters ParameterKey=StageName, ParameterValue=${{ env.DEPLOY_ENV }} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
           else
             echo "Creating new stack"
             aws cloudformation create-stack \
-              --stack-name ${{ format('BUCKET_SETUP_{0}', env.DEPLOY_ENV) }} \
+              --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') \
               --template-body file://setup/bucket-role.yaml \
               --parameters ParameterKey=StageName, ParameterValue=${{ env.DEPLOY_ENV }} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
