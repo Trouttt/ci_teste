@@ -44,7 +44,7 @@ jobs:
       - name: Checa se existe o bucket que irá alocar os itenss
         id: stack_first_bucket_exists
         run: |
-          if aws cloudformation describe-stacks --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]'); then
+          if aws cloudformation describe-stacks --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
             echo "stack_first_bucket_exists=true" >> $GITHUB_ENV
           else
             echo "stack_first_bucket_exists=false" >> $GITHUB_ENV
