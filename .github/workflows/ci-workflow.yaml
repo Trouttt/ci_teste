@@ -79,7 +79,7 @@ jobs:
                       break
                     fi
                   else
-                    break
+                    echo "Essa stack não existe mais"
                   fi
                   
                 done
