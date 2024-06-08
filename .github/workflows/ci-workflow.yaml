@@ -107,8 +107,7 @@ jobs:
           if aws cloudformation describe-stacks --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
             STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
             STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
-
-
+            echo $STACK_STATUS
             wait_for_stack_deletion() {
               while true; do
                 STACK_STATUS=$(get_stack_status)
