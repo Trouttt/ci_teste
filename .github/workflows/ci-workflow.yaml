@@ -83,9 +83,7 @@ jobs:
                   fi
                   
                 done
-              else
-                echo "A pilha: $STACK_NAME não existe"
-              fi
+           
             }
 
             # Verifica se a stack está em DELETE_IN_PROGRESS e aguarda até que ela seja deletada
