@@ -95,20 +95,25 @@ jobs:
 
       - name: Roda o comando pra atualizar ou criar a pilha do setup
         run: |
-          wait_for_stack_deletion() {
-            while true; do
-              STACK_STATUS=$(get_stack_status)
-              if [ "$STACK_STATUS" == "CREATE_IN_PROGRESS" ]; then
-                echo "Stack is in CREATE_IN_PROGRESS state. Waiting..."
-                sleep 5  # Aguarda 20 segundos antes de verificar novamente
-              else
-                break
-              fi
-            done
-          }
+
+
           if aws cloudformation describe-stacks --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
             STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
             STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
+
+
+            wait_for_stack_deletion() {
+              while true; do
+                STACK_STATUS=$(get_stack_status)
+                if [ "$STACK_STATUS" == "CREATE_IN_PROGRESS" ]; then
+                  echo "Stack is in CREATE_IN_PROGRESS state. Waiting..."
+                  sleep 5  # Aguarda 20 segundos antes de verificar novamente
+                else
+                  break
+                fi
+              done
+            }
+
             wait_for_stack_deletion
           else
             echo "Pilha existe"
