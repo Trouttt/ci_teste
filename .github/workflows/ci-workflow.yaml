@@ -204,7 +204,9 @@ jobs:
           fi
       - name: Faz o upload dos arquivos
         run: |
-          aws s3 cp ../../log/log-group.yaml s3://testebucketpipeline-${{ env.DEPLOY_ENV }}/log/ --recursive
+          BUCKET_NAME=$(echo "testebucketpipeline-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+
+          aws s3 cp /log/log-group.yaml s3://${BUCKET_NAME}/log/ --recursive
 
       - name: Checa se existe a pilha do cloudformation
         id: stack_exists
