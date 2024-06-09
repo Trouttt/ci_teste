@@ -146,6 +146,7 @@ jobs:
             if echo "$update_output" | grep -q "No updates are to be performed"; then
               echo "No updates are to be performed."
             else
+              echo "eita"
               echo "$update_output"
             fi
           else
