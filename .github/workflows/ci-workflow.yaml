@@ -148,7 +148,7 @@ jobs:
 
             echo "Oh mai gah"
             echo "UPDATE_EXIT_CODE: $UPDATE_EXIT_CODE"
-            if [ $UPDATE_EXIT_CODE -eq 255 ]; then
+            if [ $UPDATE_EXIT_CODE -eq 255 ] || [ $UPDATE_EXIT_CODE -eq 254 ]; then
               echo "No updates are to be performed. Continuing..."
             elif [ $UPDATE_EXIT_CODE -ne 0 ]; then
               echo "An error occurred during stack update."
