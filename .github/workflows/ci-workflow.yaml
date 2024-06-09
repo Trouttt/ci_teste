@@ -143,6 +143,8 @@ jobs:
               --parameters ParameterKey=StageName,ParameterValue=${LOWER_DEPLOY_ENV} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND 2>&1)
             
+            echo 'Eita bicho'
+
             if echo "$update_output" | grep -q "No updates are to be performed"; then
               echo "No updates are to be performed."
             else
