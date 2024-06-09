@@ -166,40 +166,40 @@ jobs:
 
       - name: Cria pasta 'log' caso ela não exista
         run: |
-        get_stack_status() {
-          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text
-        }
+          get_stack_status() {
+            aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text
+          }
 
-        STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
-        STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
+          STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
 
-        wait_for_stack_deletion() {
-          while true; do
-            STACK_STATUS=$(get_stack_status)
-            if [ "$STACK_STATUS" == "CREATE_IN_PROGRESS" ]; then
-              echo "Stack is in CREATE_IN_PROGRESS state. Waiting..."
-              sleep 5  # Aguarda 5 segundos antes de verificar novamente
-            else
-              break
-            fi
-          done
-        }
+          wait_for_stack_deletion() {
+            while true; do
+              STACK_STATUS=$(get_stack_status)
+              if [ "$STACK_STATUS" == "CREATE_IN_PROGRESS" ]; then
+                echo "Stack is in CREATE_IN_PROGRESS state. Waiting..."
+                sleep 5  # Aguarda 5 segundos antes de verificar novamente
+              else
+                break
+              fi
+            done
+          }
 
-        wait_for_stack_deletion
+          wait_for_stack_deletion
 
-        if [ "$STACK_STATUS" != "CREATE_COMPLETE" ]; then
-          echo "A pilha não foi criada com sucesso. Saindo..."
-          exit 1
-        fi
+          if [ "$STACK_STATUS" != "CREATE_COMPLETE" ]; then
+            echo "A pilha não foi criada com sucesso. Saindo..."
+            exit 1
+          fi
 
-        echo "Pilha existe"
+          echo "Pilha existe"
 
-        if ! aws s3 ls s3://testebucketpipeline-${DEPLOY_ENV}/log/ > /dev/null 2>&1; then
-          echo "A pasta 'log' não existe. Criando..."
-          aws s3api put-object --bucket testebucketpipeline-${DEPLOY_ENV} --key log/
-        else
-          echo "A pasta 'log' já existe."
-        fi
+          if ! aws s3 ls s3://testebucketpipeline-${DEPLOY_ENV}/log/ > /dev/null 2>&1; then
+            echo "A pasta 'log' não existe. Criando..."
+            aws s3api put-object --bucket testebucketpipeline-${DEPLOY_ENV} --key log/
+          else
+            echo "A pasta 'log' já existe."
+          fi
       - name: Faz o upload dos arquivos
         run: |
           aws s3 cp ../../log/log-group.yaml s3://testebucketpipeline-${{ env.DEPLOY_ENV }}/log/ --recursive
