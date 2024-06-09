@@ -137,20 +137,11 @@ jobs:
           LOWER_DEPLOY_ENV=$(echo "${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]')
           if [ "${{ env.stack_first_bucket_exists }}" = "true" ]; then
             echo "Updating existing stack"
-            update_output=$(aws cloudformation update-stack \
+            aws cloudformation update-stack \
               --stack-name "bucket-setup-${LOWER_DEPLOY_ENV}" \
               --template-body file://setup/bucket-role.yaml \
               --parameters ParameterKey=StageName,ParameterValue=${LOWER_DEPLOY_ENV} \
-              --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND 2>&1)
-            
-            echo 'Eita bicho'
-
-            if echo "$update_output" | grep -q "No updates are to be performed"; then
-              echo "No updates are to be performed."
-            else
-              echo "eita"
-              echo "$update_output"
-            fi
+              --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
           else
             echo "Creating new stack"
             aws cloudformation create-stack \
