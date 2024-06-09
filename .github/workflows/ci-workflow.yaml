@@ -206,8 +206,14 @@ jobs:
         run: |
           BUCKET_NAME=$(echo "testebucketpipeline-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
 
-          aws s3 cp $GITHUB_WORKSPACE/log/log-group.yaml s3://${BUCKET_NAME}/log/ --recursive
 
+          file_path=$(find $GITHUB_WORKSPACE -type f -name "log-group.yaml")
+          if [ -n "$file_path" ]; then
+            aws s3 cp "$file_path" s3://${BUCKET_NAME}/log/ --recursive
+          else
+            echo "O arquivo log-group.yaml não foi encontrado."
+            exit 1
+          fi
       - name: Checa se existe a pilha do cloudformation
         id: stack_exists
         run: |
