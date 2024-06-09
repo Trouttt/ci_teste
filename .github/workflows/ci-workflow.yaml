@@ -147,6 +147,7 @@ jobs:
             set -e
 
             echo "Oh mai gah"
+            echo "UPDATE_EXIT_CODE: $UPDATE_EXIT_CODE"
             if [ $UPDATE_EXIT_CODE -eq 255 ]; then
               echo "No updates are to be performed. Continuing..."
             elif [ $UPDATE_EXIT_CODE -ne 0 ]; then
