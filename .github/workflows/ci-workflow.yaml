@@ -193,7 +193,7 @@ jobs:
           fi
 
           echo "Pilha existe"
-
+          echo "testebucketpipeline-${DEPLOY_ENV}"
           if ! aws s3 ls s3://testebucketpipeline-${DEPLOY_ENV}/log/ > /dev/null 2>&1; then
             echo "A pasta 'log' não existe. Criando..."
             aws s3api put-object --bucket testebucketpipeline-${DEPLOY_ENV} --key log/
