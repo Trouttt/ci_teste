@@ -137,11 +137,22 @@ jobs:
           LOWER_DEPLOY_ENV=$(echo "${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]')
           if [ "${{ env.stack_first_bucket_exists }}" = "true" ]; then
             echo "Updating existing stack"
+            set +e
             aws cloudformation update-stack \
               --stack-name "bucket-setup-${LOWER_DEPLOY_ENV}" \
               --template-body file://setup/bucket-role.yaml \
               --parameters ParameterKey=StageName,ParameterValue=${LOWER_DEPLOY_ENV} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+            UPDATE_EXIT_CODE=$?
+            set -e
+
+            if [ $UPDATE_EXIT_CODE -eq 255 ]; then
+              echo "No updates are to be performed. Continuing..."
+            elif [ $UPDATE_EXIT_CODE -ne 0 ]; then
+              echo "An error occurred during stack update."
+              exit $UPDATE_EXIT_CODE
+            fi
+
           else
             echo "Creating new stack"
             aws cloudformation create-stack \
