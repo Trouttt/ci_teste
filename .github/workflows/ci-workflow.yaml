@@ -195,10 +195,10 @@ jobs:
           fi
 
           echo "Pilha existe"
-          echo "testebucketpipeline-${BUCKET_NAME}"
-          if ! aws s3 ls s3://testebucketpipeline-${BUCKET_NAME}/log/ > /dev/null 2>&1; then
+          echo "${BUCKET_NAME}"
+          if ! aws s3 ls s3://${BUCKET_NAME}/log/ > /dev/null 2>&1; then
             echo "A pasta 'log' não existe. Criando..."
-            aws s3api put-object --bucket testebucketpipeline-${BUCKET_NAME} --key log/
+            aws s3api put-object --bucket ${BUCKET_NAME} --key log/
           else
             echo "A pasta 'log' já existe."
           fi
