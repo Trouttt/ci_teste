@@ -171,6 +171,8 @@ jobs:
           }
 
           STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+          BUCKET_NAME=$(echo "testebucketpipeline-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+
           STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
 
           wait_for_stack_deletion() {
@@ -193,10 +195,10 @@ jobs:
           fi
 
           echo "Pilha existe"
-          echo "testebucketpipeline-${DEPLOY_ENV}"
-          if ! aws s3 ls s3://testebucketpipeline-${DEPLOY_ENV}/log/ > /dev/null 2>&1; then
+          echo "testebucketpipeline-${BUCKET_NAME}"
+          if ! aws s3 ls s3://testebucketpipeline-${BUCKET_NAME}/log/ > /dev/null 2>&1; then
             echo "A pasta 'log' não existe. Criando..."
-            aws s3api put-object --bucket testebucketpipeline-${DEPLOY_ENV} --key log/
+            aws s3api put-object --bucket testebucketpipeline-${BUCKET_NAME} --key log/
           else
             echo "A pasta 'log' já existe."
           fi
