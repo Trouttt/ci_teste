@@ -114,25 +114,23 @@ jobs:
             STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
             STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
             echo $STACK_STATUS
-            wait_for_stack_deletion() {
+            wait_for_stack_completion() {
               while true; do
                 STACK_STATUS=$(get_stack_status)
-                if [ "$STACK_STATUS" == "CREATE_IN_PROGRESS" ]; then
-                  echo "Stack is in CREATE_IN_PROGRESS state. Waiting..."
-                  sleep 5  # Aguarda 20 segundos antes de verificar novamente
+                if [ "$STACK_STATUS" == "CREATE_IN_PROGRESS" ] || [ "$STACK_STATUS" == "UPDATE_IN_PROGRESS" ]; then
+                  echo "Stack is in $STACK_STATUS state. Waiting..."
+                  sleep 5  # Aguarda 5 segundos antes de verificar novamente
                 else
                   break
                 fi
               done
             }
 
-            wait_for_stack_deletion
+            wait_for_stack_completion
           else
-            echo "Pilha existe"
-            echo "stack_first_bucket_exists=true" >> $GITHUB_ENV
+            echo "Pilha não existe"
+            echo "stack_first_bucket_exists=false" >> $GITHUB_ENV
           fi
-
-
 
           LOWER_DEPLOY_ENV=$(echo "${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]')
           if [ "${{ env.stack_first_bucket_exists }}" = "true" ]; then
@@ -163,7 +161,6 @@ jobs:
               --parameters ParameterKey=StageName,ParameterValue=${LOWER_DEPLOY_ENV} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
           fi
-
       - name: Cria pasta 'log' caso ela não exista
         run: |
           get_stack_status() {
