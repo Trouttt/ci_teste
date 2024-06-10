@@ -306,6 +306,8 @@ jobs:
 
           echo "Teste: ${{ env.stack_exists }}"
 
+          LOWER_DEPLOY_ENV=$(echo "${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]')
+
           if [ "${{ env.stack_exists }}" = "true" ]; then
             set +e
             aws cloudformation update-stack \
