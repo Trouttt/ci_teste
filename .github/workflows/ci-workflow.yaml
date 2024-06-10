@@ -235,7 +235,7 @@ jobs:
                 STACK_STATUS=$(get_stack_status)
                 if [ "$STACK_STATUS" == "CREATE_IN_PROGRESS" || "$STACK_STATUS" == "UPDATE_IN_PROGRESS" ]; then
                   echo "Stack is in PROGRESS state. Waiting..."
-                  sleep 5  # Aguarda 20 segundos antes de verificar novamente
+                  sleep 5  # Aguarda 20 segundos antes de verificar novamentee
                 else
                   break
                 fi
