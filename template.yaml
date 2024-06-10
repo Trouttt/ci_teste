@@ -3,12 +3,12 @@ Description: Teste
 
 Resources:
   LogsStackTeste:
-  Type: AWS::CloudFormation::Stack
-  Properties:
-    TemplateURL:
-      Fn::Sub:
-        - "https://testebucketpipeline-${StageName}.s3.amazonaws.com/log/log-group.yaml"
-        - StageName: !Ref StageName
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub:
+          - "https://testebucketpipeline-${StageName}.s3.amazonaws.com/log/log-group.yaml"
+          - StageName: !Ref StageName
 
 Parameters:
   StageName:
