@@ -298,8 +298,10 @@ jobs:
 
             wait_for_stack_deletion
           else
-            echo "Pilha existe"
+            echo "Eita"
             echo "stack_exists=true" >> $GITHUB_ENV
+            echo "Pilha existe"
+           
           fi
 
           echo "Teste: ${{ env.stack_exists }}"
