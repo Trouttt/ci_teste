@@ -248,7 +248,7 @@ jobs:
             echo "stack_exists=true" >> $GITHUB_ENV
           fi
 
-          echo "Teste: ${{ env.stack_exists }}""
+          echo "Teste: ${{ env.stack_exists }}"
 
           if [ "${{ env.stack_exists }}" = "true" ]; then
             set +e
