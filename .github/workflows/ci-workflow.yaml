@@ -274,6 +274,7 @@ jobs:
             echo "Creating new stack"
             aws cloudformation create-stack \
               --stack-name teste-pilha-${{ env.DEPLOY_ENV }} \
+              --parameters ParameterKey=StageName,ParameterValue=${LOWER_DEPLOY_ENV} \
               --template-body file://template.yaml \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
           fi
