@@ -16,7 +16,7 @@ jobs:
       name: ${{ github.event.pull_request.base.ref == 'master' && 'PROD' || 'STAGING'}}
     strategy:
       matrix:
-        version-go: ["1.15", "1.16"]
+        version-go: ["1.15"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
