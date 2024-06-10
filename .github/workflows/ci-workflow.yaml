@@ -217,7 +217,7 @@ jobs:
       - name: Checa se existe a pilha do cloudformation
         id: stack_exists
         run: |
-          if aws cloudformation describe-stacks --stack-name teste-pilha-${{ env.DEPLOY_ENV }}; then
+          if aws cloudformation describe-stacks --stack-name $(echo "teste-pilha-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
             echo "stack_exists=true" >> $GITHUB_ENV
           else
             echo "stack_exists=false" >> $GITHUB_ENV
@@ -225,12 +225,51 @@ jobs:
 
       - name: Roda o comando pra atualizar ou criar a pilha dos serviços
         run: |
+          get_stack_status() {
+            aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text
+          }
+
+          if aws cloudformation describe-stacks --stack-name $(echo "teste-pilha-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
+            STACK_NAME=$(echo "teste-pilha-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+            STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
+            echo $STACK_STATUS
+            wait_for_stack_deletion() {
+              while true; do
+                STACK_STATUS=$(get_stack_status)
+                if [ "$STACK_STATUS" == "CREATE_IN_PROGRESS" || "$STACK_STATUS" == "UPDATE_IN_PROGRESS" ]; then
+                  echo "Stack is in PROGRESS state. Waiting..."
+                  sleep 5  # Aguarda 20 segundos antes de verificar novamente
+                else
+                  break
+                fi
+              done
+            }
+
+            wait_for_stack_deletion
+          else
+            echo "Pilha existe"
+            echo "stack_exists=true" >> $GITHUB_ENV
+          fi
+
           if [ "${{ env.stack_exists }}" = "true" ]; then
-            echo "Updating existing stack"
+            set +e
             aws cloudformation update-stack \
               --stack-name teste-pilha-${{ env.DEPLOY_ENV }} \
               --template-body file://template.yaml \
+              --parameters ParameterKey=StageName,ParameterValue=${LOWER_DEPLOY_ENV} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+            echo "Updating existing stack"
+            set -e
+
+            echo "Oh mai gah"
+            echo "UPDATE_EXIT_CODE: $UPDATE_EXIT_CODE"
+            if [ $UPDATE_EXIT_CODE -eq 255 ] || [ $UPDATE_EXIT_CODE -eq 254 ]; then
+              echo "No updates are to be performed. Continuing..."
+            elif [ $UPDATE_EXIT_CODE -ne 0 ]; then
+              echo "An error occurred during stack update."
+              exit $UPDATE_EXIT_CODE
+            fi
+
           else
             echo "Creating new stack"
             aws cloudformation create-stack \
