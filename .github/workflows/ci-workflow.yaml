@@ -311,7 +311,7 @@ jobs:
           if [ "${{ env.stack_exists }}" = "true" ]; then
             set +e
             aws cloudformation update-stack \
-              --stack-name teste-pilha-${{ LOWER_DEPLOY_ENV }} \
+              --stack-name teste-pilha-${ LOWER_DEPLOY_ENV } \
               --template-body file://template.yaml \
               --parameters ParameterKey=StageName,ParameterValue=${LOWER_DEPLOY_ENV} \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
@@ -330,7 +330,7 @@ jobs:
           else
             echo "Creating new stack"
             aws cloudformation create-stack \
-              --stack-name teste-pilha-${{ LOWER_DEPLOY_ENV }} \
+              --stack-name teste-pilha-${ LOWER_DEPLOY_ENV } \
               --parameters ParameterKey=StageName,ParameterValue=${LOWER_DEPLOY_ENV} \
               --template-body file://template.yaml \
               --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
