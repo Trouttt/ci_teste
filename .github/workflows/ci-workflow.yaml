@@ -254,7 +254,7 @@ jobs:
                   if aws cloudformation describe-stacks --stack-name $(echo "teste-pilha-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
                     STACK_STATUS=$(get_stack_status)
                     if [ "$STACK_STATUS" == "DELETE_IN_PROGRESS" ]; then
-                      echo "Stack is in DELETE_IN_PROGRESS state. Waiting..."
+                      echo "Stack is in DELETE_IN_PROGRESS state. Waiting....."
                       sleep 30  # Aguarda 20 segundos antes de verificar novamente
                     else
                       break
