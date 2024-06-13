@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Log Stackkkk
+Description: Log Stackkkkkkk
 
 Resources:
   LogGroupO2Auth:

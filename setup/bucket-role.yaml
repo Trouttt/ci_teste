@@ -4,9 +4,8 @@ Description: Teste
 Resources:
   TesteBucketPipelineBucket:
     Type: AWS::S3::Bucket
-    DependsOn: TesteBucketPipelinePolicy
     Properties:
-      BucketName: testebucketpipeline-${StageName}
+      BucketName: !Sub "testebucketpipeline-${StageName}"
 
   TesteBucketPipelinePolicy:
     Type: AWS::S3::BucketPolicy
@@ -17,13 +16,20 @@ Resources:
         Statement:
           - Sid: AllowListBucket
             Effect: Allow
-            Principal: "*"
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
             Action: "s3:ListBucket"
             Resource: !Sub "arn:aws:s3:::${TesteBucketPipelineBucket}"
             Condition: {}
           - Sid: AllowPutObject
             Effect: Allow
-            Principal: "*"
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
             Action: "s3:PutObject"
             Resource: !Sub "arn:aws:s3:::${TesteBucketPipelineBucket}/*"
             Condition: {}
+
+Parameters:
+  StageName:
+    Type: String
+    Description: Nome do bucketttttttt
