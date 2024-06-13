@@ -41,6 +41,176 @@ jobs:
           #aws sts get-caller-identity
           #echo aws sts get-caller-identity
 
+      - name: Deleta pilha se ela está em rollback-complete
+        run: |
+          # Nome da stack, você pode substituir pelo nome da sua stack ou passar como argumento
+          STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+
+          echo 'Estou aqui'
+          if aws cloudformation describe-stacks --stack-name $STACK_NAME; then
+            
+            echo 'Passei dali'
+            # Obtém o estado da stack
+            STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
+
+            # Verifica se o estado da stack é 'ROLLBACK_COMPLETE'
+            if [ "$STACK_STATUS" == "ROLLBACK_COMPLETE" ]; then
+              echo "Stack is in ROLLBACK_COMPLETE state. Deleting stack..."
+              aws cloudformation delete-stack --stack-name $STACK_NAME
+              echo "Stack deletion initiated."
+            else
+              echo "Stack is not in ROLLBACK_COMPLETE state. Current state: $STACK_STATUS"
+            fi
+
+            get_stack_status() {
+              aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text
+
+            }
+
+            # Aguarda até que a stack saia do estado DELETE_IN_PROGRESS
+            wait_for_stack_deletion() {
+             
+
+                while true; do
+                  if aws cloudformation describe-stacks --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
+                    STACK_STATUS=$(get_stack_status)
+                    if [ "$STACK_STATUS" == "DELETE_IN_PROGRESS" ]; then
+                      echo "Stack is in DELETE_IN_PROGRESS state. Waiting..."
+                      sleep 30  # Aguarda 20 segundos antes de verificar novamente
+                    else
+                      break
+                    fi
+                  else
+                    echo "Essa stack não existe mais"
+                  fi
+                  
+                done
+           
+            }
+
+            # Verifica se a stack está em DELETE_IN_PROGRESS e aguarda até que ela seja deletada
+            wait_for_stack_deletion
+
+          else
+            echo "A pilha: $STACK_NAME não existe"
+          fi
+
+      - name: Checa se existe o bucket que irá alocar os itenss
+        id: stack_first_bucket_exists
+        run: |
+          if aws cloudformation describe-stacks --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
+            echo "stack_first_bucket_exists=true" >> $GITHUB_ENV
+          else
+            echo "stack_first_bucket_exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Roda o comando pra atualizar ou criar a pilha do setup
+        run: |
+          get_stack_status() {
+            aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text
+          }
+
+          if aws cloudformation describe-stacks --stack-name $(echo "bucket-setup-${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]') > /dev/null 2>&1; then
+            STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+            STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
+            echo $STACK_STATUS
+            wait_for_stack_completion() {
+              while true; do
+                STACK_STATUS=$(get_stack_status)
+                if [ "$STACK_STATUS" == "CREATE_IN_PROGRESS" ] || [ "$STACK_STATUS" == "UPDATE_IN_PROGRESS" ]; then
+                  echo "Stack is in $STACK_STATUS state. Waiting..."
+                  sleep 5  # Aguarda 5 segundos antes de verificar novamente
+                else
+                  break
+                fi
+              done
+            }
+
+            wait_for_stack_completion
+          else
+            echo "Pilha não existe"
+            echo "stack_first_bucket_exists=false" >> $GITHUB_ENV
+          fi
+
+          LOWER_DEPLOY_ENV=$(echo "${{ env.DEPLOY_ENV }}" | tr '[:upper:]' '[:lower:]')
+          if [ "${{ env.stack_first_bucket_exists }}" = "true" ]; then
+            echo "Updating existing stack"
+            set +e
+            aws cloudformation update-stack \
+              --stack-name "bucket-setup-${LOWER_DEPLOY_ENV}" \
+              --template-body file://setup/bucket-role.yaml \
+              --parameters ParameterKey=StageName,ParameterValue=${LOWER_DEPLOY_ENV} \
+              --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+            UPDATE_EXIT_CODE=$?
+            set -e
+
+            echo "Oh mai gah"
+            echo "UPDATE_EXIT_CODE: $UPDATE_EXIT_CODE"
+            if [ $UPDATE_EXIT_CODE -eq 255 ] || [ $UPDATE_EXIT_CODE -eq 254 ]; then
+              echo "No updates are to be performed. Continuing..."
+            elif [ $UPDATE_EXIT_CODE -ne 0 ]; then
+              echo "An error occurred during stack update."
+              exit $UPDATE_EXIT_CODE
+            fi
+
+          else
+            echo "Creating new stack"
+            aws cloudformation create-stack \
+              --stack-name "bucket-setup-${LOWER_DEPLOY_ENV}" \
+              --template-body file://setup/bucket-role.yaml \
+              --parameters ParameterKey=StageName,ParameterValue=${LOWER_DEPLOY_ENV} \
+              --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+          fi
+      - name: Cria pasta 'log' caso ela não exista
+        run: |
+          get_stack_status() {
+            aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text
+          }
+
+          STACK_NAME=$(echo "bucket-setup-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+          BUCKET_NAME=$(echo "testebucketpipeline-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+
+          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
+
+          wait_for_stack_deletion() {
+            while true; do
+              STACK_STATUS=$(get_stack_status)
+              if [ "$STACK_STATUS" == "CREATE_IN_PROGRESS" ]; then
+                echo "Stack is in CREATE_IN_PROGRESS state. Waiting..."
+                sleep 5  # Aguarda 5 segundos antes de verificar novamente
+              else
+                break
+              fi
+            done
+          }
+
+          wait_for_stack_deletion
+
+          if [ "$STACK_STATUS" != "CREATE_COMPLETE" ]; then
+            echo "A pilha não foi criada com sucesso. Saindo..."
+            exit 1
+          fi
+
+          echo "Pilha existe"
+          echo "${BUCKET_NAME}"
+          if ! aws s3 ls s3://${BUCKET_NAME}/log/ > /dev/null 2>&1; then
+            echo "A pasta 'log' não existe. Criando..."
+            aws s3api put-object --bucket ${BUCKET_NAME} --key log/
+          else
+            echo "A pasta 'log' já existe."
+          fi
+      - name: Faz o upload dos arquivos
+        run: |
+          BUCKET_NAME=$(echo "testebucketpipeline-${DEPLOY_ENV}" | tr '[:upper:]' '[:lower:]')
+
+
+          file_path=$(find $GITHUB_WORKSPACE/log -maxdepth 1 -type f -name "log-group.yaml")
+          if [ -n "$file_path" ]; then
+            aws s3 cp "$file_path" s3://${BUCKET_NAME}/log/
+          else
+            echo "O arquivo log-group.yaml não foi encontrado."
+            exit 1
+          fi
       - name: Checa se existe a pilha do cloudformation
         id: stack_exists
         run: |
