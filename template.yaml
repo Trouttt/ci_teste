@@ -5,10 +5,7 @@ Resources:
   LogsStackTeste:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        Fn::Sub:
-          - "./log/log-group.yaml"
-          - StageName: !Ref StageName
+      TemplateBody: "./log/log-group.yaml"
 
 Parameters:
   StageName:
