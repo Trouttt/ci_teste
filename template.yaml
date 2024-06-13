@@ -7,7 +7,7 @@ Resources:
     Properties:
       TemplateURL:
         Fn::Sub:
-          - "https://testebucketpipeline-${StageName}.s3.amazonaws.com/log/log-group.yaml"
+          - "./log/log-group.yaml"
           - StageName: !Ref StageName
 
 Parameters:
